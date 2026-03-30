@@ -11,7 +11,7 @@ export default function Contas() {
   const [showModal, setShowModal] = useState(false);
   const [editId, setEditId] = useState(null);
   const [saving, setSaving] = useState(false);
-  const [form, setForm] = useState({ id: '', label: '', lider_id: '' });
+  const [form, setForm] = useState({ id: '', label: '', lider_ids: [] });
   const [error, setError] = useState('');
 
   const load = async () => {
@@ -28,14 +28,14 @@ export default function Contas() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => { load(); }, []);
 
-  const openCreate = () => { setEditId(null); setForm({ id: '', label: '', lider_id: '' }); setError(''); setShowModal(true); };
-  const openEdit = (c) => { setEditId(c.id); setForm({ id: c.id, label: c.label, lider_id: c.lider_id || '' }); setError(''); setShowModal(true); };
+  const openCreate = () => { setEditId(null); setForm({ id: '', label: '', lider_ids: [] }); setError(''); setShowModal(true); };
+  const openEdit = (c) => { setEditId(c.id); setForm({ id: c.id, label: c.label, lider_ids: c.lider_ids || [] }); setError(''); setShowModal(true); };
 
   const handleSave = async (e) => {
     e.preventDefault(); setSaving(true); setError('');
     try {
-      if (editId) await api.patch(`/api/contas/${editId}`, { label: form.label, lider_id: form.lider_id || null });
-      else await api.post('/api/contas', { id: form.id, label: form.label, lider_id: form.lider_id || null });
+      if (editId) await api.patch(`/api/contas/${editId}`, { label: form.label, lider_ids: form.lider_ids });
+      else await api.post('/api/contas', { id: form.id, label: form.label, lider_ids: form.lider_ids });
       setShowModal(false); load();
     } catch (err) { setError(err.response?.data?.error || 'Erro ao salvar'); }
     finally { setSaving(false); }
@@ -89,12 +89,24 @@ export default function Contas() {
                   placeholder="Nome da conta" className="w-full bg-[#0f0f11] border border-white/10 rounded-lg px-4 py-2.5 text-white placeholder-[#4a5568] focus:border-[#7c3aed] outline-none transition-all" />
               </div>
               <div>
-                <label className="block text-sm text-[#94a3b8] mb-2">Líder Responsável</label>
-                <select data-testid="select-conta-lider" value={form.lider_id} onChange={e => setForm({ ...form, lider_id: e.target.value })}
-                  className="w-full bg-[#0f0f11] border border-white/10 rounded-lg px-4 py-2.5 text-white focus:border-[#7c3aed] outline-none transition-all">
-                  <option value="">— Sem líder —</option>
-                  {liders.map(l => <option key={l.id} value={l.id}>{l.nome}</option>)}
-                </select>
+                <label className="block text-sm text-[#94a3b8] mb-2">Líderes Responsáveis</label>
+                <div className="max-h-40 overflow-y-auto space-y-1 bg-[#0f0f11] border border-white/10 rounded-lg p-3">
+                  {liders.map(l => (
+                    <label key={l.id} className="flex items-center gap-3 cursor-pointer hover:bg-white/5 p-1.5 rounded transition-colors text-white">
+                      <input type="checkbox" checked={form.lider_ids.includes(l.id)} 
+                        onChange={(e) => {
+                          const newIds = e.target.checked 
+                            ? [...form.lider_ids, l.id] 
+                            : form.lider_ids.filter(id => id !== l.id);
+                          setForm({ ...form, lider_ids: newIds });
+                        }} 
+                        className="w-4 h-4 rounded bg-[#1a1a2e] border border-[#7c3aed] text-[#7c3aed] focus:ring-[#7c3aed]"
+                      />
+                      <span className="text-sm">{l.nome}</span>
+                    </label>
+                  ))}
+                  {liders.length === 0 && <div className="text-sm text-[#64748b]">Nenhum líder encontrado</div>}
+                </div>
               </div>
               <div className="flex gap-3 pt-2">
                 <button type="button" onClick={() => setShowModal(false)}

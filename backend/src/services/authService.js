@@ -41,7 +41,7 @@ async function loginExtensao(chave) {
   const token = jwt.sign(payload, JWT_SECRET, { expiresIn: '7d' });
 
   const contas = await db.all(
-    'SELECT id, label FROM contas_skokka WHERE lider_id = ? AND ativa = 1',
+    'SELECT c.id, c.label FROM contas_skokka c JOIN contas_lideres cl ON c.id = cl.conta_id WHERE cl.lider_id = ? AND c.ativa = 1',
     [user.id]
   );
 

@@ -9,9 +9,9 @@ async function list(req, res, next) {
 
 async function create(req, res, next) {
   try {
-    const { id, label, lider_id } = req.body;
+    const { id, label, lider_ids } = req.body;
     if (!id || !label) return res.status(400).json({ error: 'ID e label são obrigatórios' });
-    const conta = await contaService.create({ id, label, lider_id });
+    const conta = await contaService.create({ id, label, lider_ids });
     res.status(201).json(conta);
   } catch (err) { next(err); }
 }
