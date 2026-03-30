@@ -31,7 +31,10 @@ function requireAdmin(req, res, next) {
 async function requireActive(req, res, next) {
   try {
     const user = await db.get('SELECT ativo FROM users WHERE id = ?', [req.user.id]);
-    if (!user || user.ativo === 0) {
+    if (!user) {
+      return res.status(401).json({ error: 'Sessão inválida ou usuário removido. Faça login novamente.' });
+    }
+    if (user.ativo === 0) {
       return res.status(403).json({ error: 'Conta desativada' });
     }
     next();

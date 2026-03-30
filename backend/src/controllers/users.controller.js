@@ -13,9 +13,9 @@ async function create(req, res, next) {
     if (!nome || !email) {
       return res.status(400).json({ error: 'Nome e email são obrigatórios' });
     }
-    // FIX 9 — Senha obrigatória, mínimo 8 caracteres (remover senha padrão 'lider123')
-    if (!senha || senha.length < 8) {
-      return res.status(400).json({ error: 'Senha é obrigatória e deve ter pelo menos 8 caracteres' });
+    // FIX 9 — Senha obrigatória, mínimo 6 caracteres (remover senha padrão 'lider123')
+    if (!senha || senha.length < 6) {
+      return res.status(400).json({ error: 'Senha é obrigatória e deve ter pelo menos 6 caracteres' });
     }
     const user = await userService.create({ nome, email, senha });
     res.status(201).json(user);
