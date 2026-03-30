@@ -165,11 +165,13 @@ async function handleVerifyPhone(newPhone, oldPhone, expectedTotal) {
   
   const newPhoneCheck = await fetchPaginatedAds(newPhone);
   
+  const velhosReais = oldPhoneCheck.links.filter(u => !newPhoneCheck.links.includes(u));
+  
   return {
-    antigoRestantes: oldPhoneCheck.count,
+    antigoRestantes: velhosReais.length,
     novoConfirmados: newPhoneCheck.count,
-    sucessoAbsoluto: oldPhoneCheck.count === 0 && newPhoneCheck.count >= expectedTotal,
-    linksVelhos: oldPhoneCheck.links,
+    sucessoAbsoluto: velhosReais.length === 0 && newPhoneCheck.count >= expectedTotal,
+    linksVelhos: velhosReais,
     linksNovos: newPhoneCheck.links
   };
 }
@@ -183,11 +185,17 @@ async function handleSilentVerify(nickname, newPhone, oldPhone) {
   // O SEGREDO DO RESGATE PERFEITO: Diferenca entre o que existe pro Mapeamento e o que existe no Novo!
   const missingLinks = modelCheck.links.filter(u => !newPhoneCheck.links.includes(u));
   
+  console.log("[SK+] [VERIFY DEBUG] modelCheck.links (amostra):", modelCheck.links.slice(0, 3));
+  console.log("[SK+] [VERIFY DEBUG] newPhoneCheck.links (amostra):", newPhoneCheck.links.slice(0, 3));
+  
+  // Limpa o cache maluco da Skokka: se o link já existe no NOVO, não deve ser considerado preso no VELHO!
+  const velhosReais = oldPhoneCheck.links.filter(u => !newPhoneCheck.links.includes(u));
+  
   return {
     modeloEsperados: modelCheck.count,
-    antigoRestantes: oldPhoneCheck.count,
+    antigoRestantes: velhosReais.length,
     novoConfirmados: newPhoneCheck.count,
-    linksVelhos: oldPhoneCheck.links,
+    linksVelhos: velhosReais,
     missingLinks: missingLinks
   };
 }
