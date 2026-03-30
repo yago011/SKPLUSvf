@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>SK+ PRO — Dashboard</title>
   <link rel="stylesheet" href="dashboard.css">
 </head>
+
 <body>
 
   <!-- ==================== TELA DE LOGIN ==================== -->
@@ -37,11 +39,18 @@
       </div>
     </div>
 
+    <div
+      style="text-align:center; padding: 8px 0; font-size: 11px; color: #4a4a5e; border-top: 1px solid rgba(255,255,255,0.04); margin-top: 8px; letter-spacing: 1px;">
+      Desenvolvido por <span
+        style="background: linear-gradient(135deg, #7c3aed, #ec4899); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 700;">Yago
+        R.D.S</span>
+    </div>
+
     <!-- Tela Principal -->
     <div id="mainContent" class="main-layout">
       <!-- Coluna da Esquerda (Operação) -->
       <div class="left-panel">
-        
+
         <!-- Seletor de conta -->
         <div class="conta-selector">
           <label>Conta Ativa</label>
@@ -50,117 +59,123 @@
           </select>
         </div>
 
-    <!-- Task 1: Mapear -->
-    <div class="section" id="taskOne">
-      <div class="section-title">Task 1 — Mapear Anuncios</div>
-      <div class="input-group">
-        <label for="nickname">Apelido da modelo</label>
-        <input type="text" id="nickname" placeholder="Digite o apelido..." autocomplete="off">
-      </div>
-      <div style="display: flex; gap: 10px;">
-        <button class="btn-primary" id="btnMap" style="flex: 1;">Mapear Anuncios</button>
-        <button class="btn-primary cancel-btn" id="btnCancelMap" style="display: none;">Parar</button>
-      </div>
+        <!-- Task 1: Mapear -->
+        <div class="section" id="taskOne">
+          <div class="section-title">Task 1 — Mapear Anuncios</div>
+          <div class="input-group">
+            <label for="nickname">Apelido da modelo</label>
+            <input type="text" id="nickname" placeholder="Digite o apelido..." autocomplete="off">
+          </div>
+          <div style="display: flex; gap: 10px;">
+            <button class="btn-primary" id="btnMap" style="flex: 1;">Mapear Anuncios</button>
+            <button class="btn-primary cancel-btn" id="btnCancelMap" style="display: none;">Parar</button>
+          </div>
 
-      <div class="open-ads-container" id="openAdsContainer">
-        <div class="open-ads-label">Abrir p/ Edicao Manual</div>
-        <div class="open-ads-row">
-          <select id="adsPageSelect"></select>
-          <button class="btn-open-ads" id="btnOpenAdsPage">Abrir</button>
+          <div class="open-ads-container" id="openAdsContainer">
+            <div class="open-ads-label">Abrir p/ Edicao Manual</div>
+            <div class="open-ads-row">
+              <select id="adsPageSelect"></select>
+              <button class="btn-open-ads" id="btnOpenAdsPage">Abrir</button>
+            </div>
+          </div>
         </div>
-      </div>
-    </div>
 
-    <!-- Task 2: Trocar -->
-    <div class="section" id="taskTwo">
-      <div class="section-title">Task 2 — Trocar Numeros</div>
-      <div class="stats-row">
-        <div class="stat-card">
-          <div class="stat-value" id="statTotal">0</div>
-          <div class="stat-label">Mapeados</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-value" id="statSuccess">0</div>
-          <div class="stat-label">Sucesso</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-value" id="statFailed">0</div>
-          <div class="stat-label">Falhas</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-value" id="statVerified">-</div>
-          <div class="stat-label">Pendentes</div>
-        </div>
-      </div>
-      <div class="input-group">
-        <label for="phone">Novo Numero de Telefone</label>
-        <input type="text" id="phone" placeholder="Ex: 11999998888" autocomplete="off">
-      </div>
-      <div class="input-group">
-        <label for="oldPhone">Numero Antigo (verificacao)</label>
-        <input type="text" id="oldPhone" placeholder="Numero que sera substituido" autocomplete="off">
-      </div>
-      <div style="display: flex; gap: 10px;">
-        <button class="btn-primary" id="btnSwap" style="flex: 1;">Trocar Numeros</button>
-        <button class="btn-primary cancel-btn" id="btnCancelSwap" style="display: none;">Parar</button>
-      </div>
+        <!-- Task 2: Trocar -->
+        <div class="section" id="taskTwo">
+          <div class="section-title">Task 2 — Trocar Numeros</div>
+          <div class="stats-row">
+            <div class="stat-card">
+              <div class="stat-value" id="statTotal">0</div>
+              <div class="stat-label">Mapeados</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-value" id="statSuccess">0</div>
+              <div class="stat-label">Sucesso</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-value" id="statFailed">0</div>
+              <div class="stat-label">Falhas</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-value" id="statVerified">-</div>
+              <div class="stat-label">Pendentes</div>
+            </div>
+          </div>
+          <div class="input-group">
+            <label for="phone">Novo Numero de Telefone</label>
+            <input type="text" id="phone" placeholder="Ex: 11999998888" autocomplete="off">
+          </div>
+          <div class="input-group">
+            <label for="oldPhone">Numero Antigo (verificacao)</label>
+            <input type="text" id="oldPhone" placeholder="Numero que sera substituido" autocomplete="off">
+          </div>
+          <div style="display: flex; gap: 10px;">
+            <button class="btn-primary" id="btnSwap" style="flex: 1;">Trocar Numeros</button>
+            <button class="btn-primary cancel-btn" id="btnCancelSwap" style="display: none;">Parar</button>
+          </div>
 
-      <div class="progress-container" id="progressContainer">
-        <div class="progress-label">
-          <span id="progressWave">Aguardando...</span>
-          <span id="progressPercent">0%</span>
-        </div>
-        <div class="progress-bar">
-          <div class="progress-fill" id="progressFill"></div>
-        </div>
-      </div>
+          <div class="progress-container" id="progressContainer">
+            <div class="progress-label">
+              <span id="progressWave">Aguardando...</span>
+              <span id="progressPercent">0%</span>
+            </div>
+            <div class="progress-bar">
+              <div class="progress-fill" id="progressFill"></div>
+            </div>
+          </div>
 
-      <div class="result-banner" id="resultBanner"></div>
-    </div>
+          <div class="result-banner" id="resultBanner"></div>
+        </div>
 
-    <!-- Task 3: Verificacao -->
-    <div class="section" id="taskThree">
-      <div class="section-title">Task 3 — Verificacao e Resgate</div>
-      <div class="stats-row" style="margin-bottom: 20px;">
-        <div class="stat-card" style="border-color: #3b82f6;">
-          <div class="stat-value text-blue" id="statVerifyTotal">-</div>
-          <div class="stat-label">Esperados (Nome)</div>
-        </div>
-        <div class="stat-card" style="border-color: #10b981;">
-          <div class="stat-value text-green" id="statVerifyNew">-</div>
-          <div class="stat-label">Concluidos (Novo)</div>
-        </div>
-        <div class="stat-card" style="border-color: #ef4444;">
-          <div class="stat-value text-red" id="statVerifyOld">-</div>
-          <div class="stat-label">Presos / Faltantes</div>
-        </div>
-      </div>
+        <!-- Task 3: Verificacao -->
+        <div class="section" id="taskThree">
+          <div class="section-title">Task 3 — Verificacao e Resgate</div>
+          <div class="stats-row" style="margin-bottom: 20px;">
+            <div class="stat-card" style="border-color: #3b82f6;">
+              <div class="stat-value text-blue" id="statVerifyTotal">-</div>
+              <div class="stat-label">Esperados (Nome)</div>
+            </div>
+            <div class="stat-card" style="border-color: #10b981;">
+              <div class="stat-value text-green" id="statVerifyNew">-</div>
+              <div class="stat-label">Concluidos (Novo)</div>
+            </div>
+            <div class="stat-card" style="border-color: #ef4444;">
+              <div class="stat-value text-red" id="statVerifyOld">-</div>
+              <div class="stat-label">Presos / Faltantes</div>
+            </div>
+          </div>
 
-      <div class="input-group">
-        <label for="verifyNickname">Apelido da modelo</label>
-        <input type="text" id="verifyNickname" placeholder="Ex: Vivi..." autocomplete="off">
-      </div>
-      <div class="input-group">
-        <label for="verifyNewPhone">Numero Novo da Troca</label>
-        <input type="text" id="verifyNewPhone" placeholder="Ex: 11999998888" autocomplete="off">
-      </div>
-      <div class="input-group">
-        <label for="verifyOldPhone">Numero Antigo (buscado presencialmente)</label>
-        <input type="text" id="verifyOldPhone" placeholder="Numero que falhou" autocomplete="off">
-      </div>
-      <button class="btn-primary" id="btnVerify">Checar Integridade</button>
+          <div class="input-group">
+            <label for="verifyNickname">Apelido da modelo</label>
+            <input type="text" id="verifyNickname" placeholder="Ex: Vivi..." autocomplete="off">
+          </div>
+          <div class="input-group">
+            <label for="verifyNewPhone">Numero Novo da Troca</label>
+            <input type="text" id="verifyNewPhone" placeholder="Ex: 11999998888" autocomplete="off">
+          </div>
+          <div class="input-group">
+            <label for="verifyOldPhone">Numero Antigo (buscado presencialmente)</label>
+            <input type="text" id="verifyOldPhone" placeholder="Numero que falhou" autocomplete="off">
+          </div>
+          <button class="btn-primary" id="btnVerify">Checar Integridade</button>
 
-      <div class="result-banner" id="verifyBanner" style="display:none; margin-top: 15px;"></div>
-      
-      <div class="open-ads-container bg-red-900/10 border-red-500/20" id="rescueContainer" style="display:none; margin-top: 15px; border: 1px solid rgba(239, 68, 68, 0.2); padding: 15px; border-radius: 8px;">
-        <div class="open-ads-label" style="color: #f87171; font-weight: bold; margin-bottom: 10px;">Time de Resgate (Manual / Auto)</div>
-        <p style="font-size: 13px; color: #cbd5e1; margin-bottom: 12px; line-height: 1.4;">Foram identificados anúncios perdidos (presos ou sem atualização).</p>
-        <div style="display: flex; gap: 10px; flex-direction: column;">
-          <button class="btn-primary" style="background: linear-gradient(to right, #8b5cf6, #3b82f6);" id="btnAutoRescue">Forçar Troca Automática (Destravar)</button>
-          <button class="btn-primary" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: #fff;" id="btnRescueOld">Abrir e Editar Manualmente</button>
+          <div class="result-banner" id="verifyBanner" style="display:none; margin-top: 15px;"></div>
+
+          <div class="open-ads-container bg-red-900/10 border-red-500/20" id="rescueContainer"
+            style="display:none; margin-top: 15px; border: 1px solid rgba(239, 68, 68, 0.2); padding: 15px; border-radius: 8px;">
+            <div class="open-ads-label" style="color: #f87171; font-weight: bold; margin-bottom: 10px;">Time de Resgate
+              (Manual / Auto)</div>
+            <p style="font-size: 13px; color: #cbd5e1; margin-bottom: 12px; line-height: 1.4;">Foram identificados
+              anúncios perdidos (presos ou sem atualização).</p>
+            <div style="display: flex; gap: 10px; flex-direction: column;">
+              <button class="btn-primary" style="background: linear-gradient(to right, #8b5cf6, #3b82f6);"
+                id="btnAutoRescue">Forçar Troca Automática (Destravar)</button>
+              <button class="btn-primary"
+                style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: #fff;"
+                id="btnRescueOld">Abrir e Editar Manualmente</button>
+            </div>
+          </div>
         </div>
-      </div>
-    </div>
 
       </div> <!-- Fim Left Panel -->
 
@@ -169,7 +184,8 @@
         <div class="section log-section">
           <div class="section-title">
             <span style="display:flex; align-items:center; gap:6px;">
-              <span style="width:8px;height:8px;background:#34d399;border-radius:50%;display:inline-block;box-shadow:0 0 8px rgba(52,211,153,0.8);"></span> 
+              <span
+                style="width:8px;height:8px;background:#34d399;border-radius:50%;display:inline-block;box-shadow:0 0 8px rgba(52,211,153,0.8);"></span>
               Terminal Skokka Ao Vivo
             </span>
           </div>
@@ -181,6 +197,7 @@
 
     </div> <!-- Fim Main Layout -->
 
-  <script src="dashboard.js"></script>
+    <script src="dashboard.js"></script>
 </body>
+
 </html>

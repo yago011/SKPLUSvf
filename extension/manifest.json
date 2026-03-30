@@ -3,11 +3,16 @@
   "name": "SK+ PRO",
   "version": "3.0",
   "description": "SK+ PRO — Automacao de anuncios Skokka",
-  "permissions": ["tabs", "scripting", "storage", "alarms"],
+  "permissions": [
+    "tabs",
+    "scripting",
+    "storage",
+    "alarms"
+  ],
   "host_permissions": [
     "https://br.skokka.com/*",
     "https://*.skokka.com/*",
-    "http://localhost/*"
+    "https://skplusvf-production.up.railway.app/*"
   ],
   "background": {
     "service_worker": "background.js"

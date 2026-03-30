@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html>
+
 <head>
   <meta charset="utf-8">
   <style>
@@ -11,6 +12,7 @@
       margin: 0;
       padding: 16px;
     }
+
     h2 {
       margin: 0 0 16px 0;
       font-size: 16px;
@@ -19,19 +21,22 @@
       align-items: center;
       gap: 8px;
     }
+
     .input-group {
       margin-bottom: 12px;
     }
+
     label {
       display: block;
       font-size: 12px;
       color: #94a3b8;
       margin-bottom: 4px;
     }
+
     input {
       width: 100%;
       background: #1a1a2e;
-      border: 1px solid rgba(255,255,255,0.1);
+      border: 1px solid rgba(255, 255, 255, 0.1);
       border-radius: 6px;
       padding: 8px;
       color: #fff;
@@ -39,9 +44,11 @@
       box-sizing: border-box;
       outline: none;
     }
+
     input:focus {
       border-color: #7c3aed;
     }
+
     button {
       width: 100%;
       background: linear-gradient(to right, #7c3aed, #ec4899);
@@ -53,19 +60,23 @@
       cursor: pointer;
       margin-top: 8px;
     }
+
     button:disabled {
       opacity: 0.5;
       cursor: not-allowed;
     }
+
     .btn-dashboard {
       background: #1a1a2e;
-      border: 1px solid rgba(255,255,255,0.1);
+      border: 1px solid rgba(255, 255, 255, 0.1);
       margin-top: 12px;
       font-weight: normal;
     }
+
     .btn-dashboard:hover {
-      background: rgba(255,255,255,0.05);
+      background: rgba(255, 255, 255, 0.05);
     }
+
     #result {
       margin-top: 16px;
       font-size: 13px;
@@ -75,19 +86,35 @@
       display: none;
       white-space: pre-wrap;
     }
-    .res-success { background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.2); color: #34d399; }
-    .res-warning { background: rgba(245, 158, 11, 0.1); border: 1px solid rgba(245, 158, 11, 0.2); color: #fbbf24; }
-    .res-error { background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.2); color: #f87171; }
+
+    .res-success {
+      background: rgba(16, 185, 129, 0.1);
+      border: 1px solid rgba(16, 185, 129, 0.2);
+      color: #34d399;
+    }
+
+    .res-warning {
+      background: rgba(245, 158, 11, 0.1);
+      border: 1px solid rgba(245, 158, 11, 0.2);
+      color: #fbbf24;
+    }
+
+    .res-error {
+      background: rgba(239, 68, 68, 0.1);
+      border: 1px solid rgba(239, 68, 68, 0.2);
+      color: #f87171;
+    }
   </style>
 </head>
+
 <body>
   <h2>SK+ PRO Verificador</h2>
-  
+
   <div class="input-group">
     <label>Número Antigo</label>
     <input type="text" id="oldPhone" placeholder="Ex: 11999998888" />
   </div>
-  
+
   <div class="input-group">
     <label>Número Novo (Obrigatório)</label>
     <input type="text" id="newPhone" placeholder="Ex: 11999997777" />
@@ -99,11 +126,18 @@
   </div>
 
   <button id="btnVerify">Verificar Skokka Agora</button>
-  
+
   <div id="result"></div>
 
   <button class="btn-dashboard" id="btnDashboard">Abrir Dashboard</button>
 
   <script src="popup.js"></script>
+
+  <div style="margin-top: 16px; text-align: center; font-size: 10px; color: #4a4a5e; letter-spacing: 0.8px;">
+    Desenvolvido por <span
+      style="background: linear-gradient(135deg, #7c3aed, #ec4899); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 700;">Yago
+      R.D.S</span>
+  </div>
 </body>
+
 </html>
