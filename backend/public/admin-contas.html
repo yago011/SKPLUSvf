@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SK+ PRO — Contas</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <div class="app-container">
+    <div class="sidebar" id="sidebar"></div>
+    <div class="main-content">
+      <div class="page-header" style="display:flex; justify-content:space-between; align-items:center;">
+        <div>
+          <h1>Contas Skokka</h1>
+          <p>Gerenciar contas e atribuir lideres</p>
+        </div>
+        <button class="btn btn-primary" onclick="openCreateModal()" style="width:auto;">+ Nova Conta</button>
+      </div>
+
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Label</th>
+              <th>Lider Atribuido</th>
+              <th>Status</th>
+              <th>Acoes</th>
+            </tr>
+          </thead>
+          <tbody id="contas-body">
+            <tr><td colspan="5" style="text-align:center; color:#8b8b9e; padding:30px;">Carregando...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Criar -->
+  <div class="modal-overlay" id="createModal">
+    <div class="modal">
+      <h2>Nova Conta Skokka</h2>
+      <div class="form-group">
+        <label>ID da Conta</label>
+        <input type="text" id="newId" placeholder="Ex: conta1, conta_laura">
+      </div>
+      <div class="form-group">
+        <label>Label</label>
+        <input type="text" id="newLabel" placeholder="Ex: Conta 1 - Laura">
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-secondary" onclick="closeModal('createModal')">Cancelar</button>
+        <button class="btn btn-primary" style="width:auto;" onclick="createConta()">Criar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Editar -->
+  <div class="modal-overlay" id="editModal">
+    <div class="modal">
+      <h2>Editar Conta</h2>
+      <input type="hidden" id="editId">
+      <div class="form-group">
+        <label>Label</label>
+        <input type="text" id="editLabel">
+      </div>
+      <div class="form-group">
+        <label>Lider Atribuido</label>
+        <select id="editLider">
+          <option value="">Nenhum</option>
+        </select>
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-secondary" onclick="closeModal('editModal')">Cancelar</button>
+        <button class="btn btn-primary" style="width:auto;" onclick="saveEdit()">Salvar</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="/js/api.js"></script>
+  <script src="/js/auth.js"></script>
+  <script>
+    const user = checkAuth();
+    if (user && user.role !== 'admin') {
+      window.location.href = '/dashboard.html';
+    }
+
+    let allUsers = [];
+    if (user) init();
+
+    async function init() {
+      buildSidebar('contas');
+      try {
+        allUsers = await api.listUsers();
+      } catch (e) {}
+      await loadContas();
+    }
+
+    async function loadContas() {
+      try {
+        const contas = await api.listContas();
+        const tbody = document.getElementById('contas-body');
+        if (!contas.length) {
+          tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:#8b8b9e;">Nenhuma conta</td></tr>';
+          return;
+        }
+        tbody.innerHTML = contas.map(c => {
+          const lider = allUsers.find(u => u.id === c.lider_id);
+          const liderName = lider ? lider.nome : '<span style="color:#8b8b9e;">Nao atribuido</span>';
+          const statusBadge = c.ativa ? '<span class="badge badge-active">Ativa</span>' : '<span class="badge badge-inactive">Inativa</span>';
+          return `<tr>
+            <td style="font-family:monospace;">${c.id}</td>
+            <td>${c.label}</td>
+            <td>${liderName}</td>
+            <td>${statusBadge}</td>
+            <td>
+              <div class="btn-group">
+                <button class="btn btn-secondary btn-sm" onclick="openEditModal('${c.id}','${c.label}','${c.lider_id || ''}')">Editar</button>
+                ${c.ativa
+                  ? `<button class="btn btn-danger btn-sm" onclick="deactivateConta('${c.id}')">Desativar</button>`
+                  : ''
+                }
+              </div>
+            </td>
+          </tr>`;
+        }).join('');
+      } catch (err) {
+        showToast('Erro ao carregar contas: ' + err.message, 'error');
+      }
+    }
+
+    function openCreateModal() {
+      document.getElementById('newId').value = '';
+      document.getElementById('newLabel').value = '';
+      document.getElementById('createModal').classList.add('active');
+    }
+
+    function openEditModal(id, label, liderId) {
+      document.getElementById('editId').value = id;
+      document.getElementById('editLabel').value = label;
+      const select = document.getElementById('editLider');
+      select.innerHTML = '<option value="">Nenhum</option>' +
+        allUsers.filter(u => u.role === 'lider' && u.ativo).map(u =>
+          `<option value="${u.id}" ${u.id === liderId ? 'selected' : ''}>${u.nome}</option>`
+        ).join('');
+      document.getElementById('editModal').classList.add('active');
+    }
+
+    function closeModal(id) {
+      document.getElementById(id).classList.remove('active');
+    }
+
+    async function createConta() {
+      const id = document.getElementById('newId').value.trim();
+      const label = document.getElementById('newLabel').value.trim();
+      if (!id || !label) {
+        showToast('Preencha ID e Label', 'error');
+        return;
+      }
+      try {
+        await api.createConta({ id, label });
+        closeModal('createModal');
+        showToast('Conta criada!', 'success');
+        await loadContas();
+      } catch (err) {
+        showToast('Erro: ' + err.message, 'error');
+      }
+    }
+
+    async function saveEdit() {
+      const id = document.getElementById('editId').value;
+      const label = document.getElementById('editLabel').value.trim();
+      const lider_id = document.getElementById('editLider').value || null;
+      try {
+        await api.updateConta(id, { label, lider_id });
+        closeModal('editModal');
+        showToast('Conta atualizada!', 'success');
+        await loadContas();
+      } catch (err) {
+        showToast('Erro: ' + err.message, 'error');
+      }
+    }
+
+    async function deactivateConta(id) {
+      if (!confirm('Desativar esta conta?')) return;
+      try {
+        await api.deactivateConta(id);
+        showToast('Conta desativada!', 'success');
+        await loadContas();
+      } catch (err) {
+        showToast('Erro: ' + err.message, 'error');
+      }
+    }
+  </script>
+</body>
+</html>

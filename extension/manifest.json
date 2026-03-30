@@ -1,0 +1,17 @@
+{
+  "manifest_version": 3,
+  "name": "SK+ PRO",
+  "version": "3.0",
+  "description": "SK+ PRO — Automacao de anuncios Skokka",
+  "permissions": ["tabs", "scripting", "storage", "alarms"],
+  "host_permissions": [
+    "https://br.skokka.com/*",
+    "https://*.skokka.com/*",
+    "http://localhost/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {},
+  "icons": {}
+}

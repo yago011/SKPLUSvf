@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SK+ PRO — Dashboard</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <div class="app-container">
+    <div class="sidebar" id="sidebar"></div>
+    <div class="main-content">
+      <div class="page-header">
+        <h1>Dashboard</h1>
+        <p id="greeting"></p>
+      </div>
+
+      <div class="cards-grid" id="cards">
+        <div class="card">
+          <div class="card-label">Trocas Hoje</div>
+          <div class="card-value success" id="c-trocas">-</div>
+        </div>
+        <div class="card">
+          <div class="card-label">Mapeamentos Hoje</div>
+          <div class="card-value info" id="c-mapeamentos">-</div>
+        </div>
+        <div class="card">
+          <div class="card-label">Pendentes</div>
+          <div class="card-value warning" id="c-pendentes">-</div>
+        </div>
+        <div class="card">
+          <div class="card-label">Erros</div>
+          <div class="card-value error" id="c-erros">-</div>
+        </div>
+        <div class="card">
+          <div class="card-label">Total Contas</div>
+          <div class="card-value" id="c-contas">-</div>
+        </div>
+        <div class="card">
+          <div class="card-label">Total Modelos</div>
+          <div class="card-value" id="c-modelos">-</div>
+        </div>
+      </div>
+
+      <div class="table-container">
+        <div class="table-header">
+          <h2>Tarefas Recentes</h2>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>Data</th>
+              <th>Tipo</th>
+              <th>Modelo</th>
+              <th>Conta</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody id="tarefas-body">
+            <tr><td colspan="5" style="text-align:center; color:#8b8b9e; padding:30px;">Carregando...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <script src="/js/api.js"></script>
+  <script src="/js/auth.js"></script>
+  <script>
+    const user = checkAuth();
+    if (user) init();
+
+    async function init() {
+      buildSidebar('dashboard');
+      document.getElementById('greeting').textContent = `Bem-vindo, ${user.nome}`;
+
+      try {
+        const dash = await api.dashboard();
+        document.getElementById('c-trocas').textContent = dash.trocas_hoje || 0;
+        document.getElementById('c-mapeamentos').textContent = dash.mapeamentos_hoje || 0;
+        document.getElementById('c-pendentes').textContent = dash.tarefas_pendentes || 0;
+        document.getElementById('c-erros').textContent = dash.tarefas_erro || 0;
+        document.getElementById('c-contas').textContent = dash.total_contas || 0;
+        document.getElementById('c-modelos').textContent = dash.total_modelos || 0;
+      } catch (err) {
+        showToast('Erro ao carregar dashboard: ' + err.message, 'error');
+      }
+
+      try {
+        const tarefas = await api.listTarefas({ limit: 10 });
+        const tbody = document.getElementById('tarefas-body');
+        if (!tarefas.length) {
+          tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:#8b8b9e; padding:30px;">Nenhuma tarefa encontrada</td></tr>';
+          return;
+        }
+        tbody.innerHTML = tarefas.map(t => {
+          const date = new Date(t.created_at).toLocaleString('pt-BR');
+          const statusClass = {
+            pendente: 'badge-pending',
+            processando: 'badge-processing',
+            concluida: 'badge-done',
+            erro: 'badge-error'
+          }[t.status] || '';
+          return `<tr>
+            <td>${date}</td>
+            <td>${t.tipo}</td>
+            <td>${t.modelo}</td>
+            <td>${t.conta_id}</td>
+            <td><span class="badge ${statusClass}">${t.status}</span></td>
+          </tr>`;
+        }).join('');
+      } catch (err) {
+        document.getElementById('tarefas-body').innerHTML = '<tr><td colspan="5" style="color:#f87171; text-align:center;">Erro ao carregar tarefas</td></tr>';
+      }
+    }
+  </script>
+</body>
+</html>

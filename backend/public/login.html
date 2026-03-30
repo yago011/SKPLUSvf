@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SK+ PRO — Login</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <div class="login-container">
+    <div class="login-box">
+      <h1>SK+ PRO</h1>
+      <p class="subtitle">Painel de Controle</p>
+      <div id="error" class="login-error" style="display:none; background:rgba(248,113,113,0.1); border:1px solid rgba(248,113,113,0.3); border-radius:8px; padding:10px; color:#f87171; font-size:13px; margin-bottom:16px;"></div>
+      <form id="loginForm">
+        <div class="form-group">
+          <label for="email">Email</label>
+          <input type="email" id="email" placeholder="admin@skplus.com.br" required>
+        </div>
+        <div class="form-group">
+          <label for="senha">Senha</label>
+          <input type="password" id="senha" placeholder="Sua senha" required>
+        </div>
+        <button type="submit" class="btn btn-primary" id="btnLogin">Entrar</button>
+      </form>
+    </div>
+  </div>
+  <script src="/js/api.js"></script>
+  <script>
+    // If already logged in, redirect
+    if (localStorage.getItem('sk_token')) {
+      window.location.href = '/dashboard.html';
+    }
+
+    document.getElementById('loginForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const btn = document.getElementById('btnLogin');
+      const errorEl = document.getElementById('error');
+      errorEl.style.display = 'none';
+      btn.textContent = 'Entrando...';
+      btn.disabled = true;
+
+      try {
+        const email = document.getElementById('email').value.trim();
+        const senha = document.getElementById('senha').value;
+        const data = await api.login(email, senha);
+        localStorage.setItem('sk_token', data.token);
+        localStorage.setItem('sk_user', JSON.stringify(data.user));
+        window.location.href = '/dashboard.html';
+      } catch (err) {
+        errorEl.textContent = err.message || 'Email ou senha incorretos';
+        errorEl.style.display = 'block';
+      } finally {
+        btn.textContent = 'Entrar';
+        btn.disabled = false;
+      }
+    });
+  </script>
+</body>
+</html>

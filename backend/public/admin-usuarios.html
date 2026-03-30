@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SK+ PRO — Usuarios</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <div class="app-container">
+    <div class="sidebar" id="sidebar"></div>
+    <div class="main-content">
+      <div class="page-header" style="display:flex; justify-content:space-between; align-items:center;">
+        <div>
+          <h1>Usuarios</h1>
+          <p>Gerenciar lideres e acessos</p>
+        </div>
+        <button class="btn btn-primary" onclick="openCreateModal()" style="width:auto;">+ Novo Lider</button>
+      </div>
+
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>Nome</th>
+              <th>Email</th>
+              <th>Role</th>
+              <th>Chave Extensao</th>
+              <th>Status</th>
+              <th>Acoes</th>
+            </tr>
+          </thead>
+          <tbody id="users-body">
+            <tr><td colspan="6" style="text-align:center; color:#8b8b9e; padding:30px;">Carregando...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Criar -->
+  <div class="modal-overlay" id="createModal">
+    <div class="modal">
+      <h2>Novo Lider</h2>
+      <div class="form-group">
+        <label>Nome</label>
+        <input type="text" id="newNome" placeholder="Nome do lider">
+      </div>
+      <div class="form-group">
+        <label>Email</label>
+        <input type="email" id="newEmail" placeholder="email@exemplo.com">
+      </div>
+      <div class="form-group">
+        <label>Senha</label>
+        <input type="password" id="newSenha" placeholder="Senha inicial">
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-secondary" onclick="closeModal('createModal')">Cancelar</button>
+        <button class="btn btn-primary" style="width:auto;" onclick="createUser()">Criar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Editar -->
+  <div class="modal-overlay" id="editModal">
+    <div class="modal">
+      <h2>Editar Usuario</h2>
+      <input type="hidden" id="editId">
+      <div class="form-group">
+        <label>Nome</label>
+        <input type="text" id="editNome">
+      </div>
+      <div class="form-group">
+        <label>Email</label>
+        <input type="email" id="editEmail">
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-secondary" onclick="closeModal('editModal')">Cancelar</button>
+        <button class="btn btn-primary" style="width:auto;" onclick="saveEdit()">Salvar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Chave Gerada -->
+  <div class="modal-overlay" id="keyModal">
+    <div class="modal">
+      <h2>Chave de Acesso Gerada</h2>
+      <p style="color:#8b8b9e; font-size:13px; margin-bottom:12px;">Copie esta chave e envie ao lider. Ela so aparece uma vez!</p>
+      <div class="key-display">
+        <code id="keyValue"></code>
+        <button class="btn btn-secondary btn-sm" onclick="copyKey()">Copiar</button>
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-primary" style="width:auto;" onclick="closeModal('keyModal')">Fechar</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="/js/api.js"></script>
+  <script src="/js/auth.js"></script>
+  <script>
+    const user = checkAuth();
+    if (user && user.role !== 'admin') {
+      window.location.href = '/dashboard.html';
+    }
+    if (user) init();
+
+    async function init() {
+      buildSidebar('usuarios');
+      await loadUsers();
+    }
+
+    async function loadUsers() {
+      try {
+        const users = await api.listUsers();
+        const tbody = document.getElementById('users-body');
+        if (!users.length) {
+          tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; color:#8b8b9e;">Nenhum usuario</td></tr>';
+          return;
+        }
+        tbody.innerHTML = users.map(u => {
+          const roleClass = u.role === 'admin' ? 'badge-processing' : 'badge-done';
+          const statusBadge = u.ativo ? '<span class="badge badge-active">Ativo</span>' : '<span class="badge badge-inactive">Inativo</span>';
+          const chaveDisplay = u.chave_extensao
+            ? `<span style="font-family:monospace; font-size:11px; color:#8b8b9e;">${u.chave_extensao.substring(0, 12)}...</span>
+               <button class="btn btn-secondary btn-sm" onclick="copyToClip('${u.chave_extensao}')" title="Copiar chave">Copiar</button>`
+            : '<span style="color:#8b8b9e;">-</span>';
+          const actions = u.role !== 'admin' ? `
+            <div class="btn-group">
+              <button class="btn btn-secondary btn-sm" onclick="openEditModal('${u.id}','${u.nome}','${u.email}')">Editar</button>
+              <button class="btn btn-secondary btn-sm" onclick="resetKey('${u.id}')">Nova Chave</button>
+              ${u.ativo
+                ? `<button class="btn btn-danger btn-sm" onclick="toggleUser('${u.id}', false)">Desativar</button>`
+                : `<button class="btn btn-secondary btn-sm" style="color:#34d399;" onclick="toggleUser('${u.id}', true)">Ativar</button>`
+              }
+            </div>` : '<span style="color:#8b8b9e;">-</span>';
+          return `<tr>
+            <td>${u.nome}</td>
+            <td>${u.email}</td>
+            <td><span class="badge ${roleClass}">${u.role}</span></td>
+            <td>${chaveDisplay}</td>
+            <td>${statusBadge}</td>
+            <td>${actions}</td>
+          </tr>`;
+        }).join('');
+      } catch (err) {
+        showToast('Erro ao carregar usuarios: ' + err.message, 'error');
+      }
+    }
+
+    function openCreateModal() {
+      document.getElementById('newNome').value = '';
+      document.getElementById('newEmail').value = '';
+      document.getElementById('newSenha').value = '';
+      document.getElementById('createModal').classList.add('active');
+    }
+
+    function openEditModal(id, nome, email) {
+      document.getElementById('editId').value = id;
+      document.getElementById('editNome').value = nome;
+      document.getElementById('editEmail').value = email;
+      document.getElementById('editModal').classList.add('active');
+    }
+
+    function closeModal(id) {
+      document.getElementById(id).classList.remove('active');
+    }
+
+    async function createUser() {
+      const nome = document.getElementById('newNome').value.trim();
+      const email = document.getElementById('newEmail').value.trim();
+      const senha = document.getElementById('newSenha').value;
+      if (!nome || !email || !senha) {
+        showToast('Preencha todos os campos', 'error');
+        return;
+      }
+      try {
+        const created = await api.createUser({ nome, email, senha });
+        closeModal('createModal');
+        showToast('Lider criado com sucesso!', 'success');
+        // Show key
+        document.getElementById('keyValue').textContent = created.chave_extensao;
+        document.getElementById('keyModal').classList.add('active');
+        await loadUsers();
+      } catch (err) {
+        showToast('Erro: ' + err.message, 'error');
+      }
+    }
+
+    async function saveEdit() {
+      const id = document.getElementById('editId').value;
+      const nome = document.getElementById('editNome').value.trim();
+      const email = document.getElementById('editEmail').value.trim();
+      try {
+        await api.updateUser(id, { nome, email });
+        closeModal('editModal');
+        showToast('Usuario atualizado!', 'success');
+        await loadUsers();
+      } catch (err) {
+        showToast('Erro: ' + err.message, 'error');
+      }
+    }
+
+    async function toggleUser(id, activate) {
+      try {
+        if (activate) {
+          await api.activateUser(id);
+          showToast('Usuario ativado!', 'success');
+        } else {
+          await api.deactivateUser(id);
+          showToast('Usuario desativado!', 'success');
+        }
+        await loadUsers();
+      } catch (err) {
+        showToast('Erro: ' + err.message, 'error');
+      }
+    }
+
+    async function resetKey(id) {
+      if (!confirm('Gerar nova chave? A chave anterior sera invalidada.')) return;
+      try {
+        const data = await api.resetKey(id);
+        document.getElementById('keyValue').textContent = data.chave_extensao;
+        document.getElementById('keyModal').classList.add('active');
+        showToast('Nova chave gerada!', 'success');
+        await loadUsers();
+      } catch (err) {
+        showToast('Erro: ' + err.message, 'error');
+      }
+    }
+
+    function copyKey() {
+      const key = document.getElementById('keyValue').textContent;
+      navigator.clipboard.writeText(key);
+      showToast('Chave copiada!', 'success');
+    }
+
+    function copyToClip(text) {
+      navigator.clipboard.writeText(text);
+      showToast('Chave copiada!', 'success');
+    }
+  </script>
+</body>
+</html>

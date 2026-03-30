@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SK+ PRO — Historico</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <div class="app-container">
+    <div class="sidebar" id="sidebar"></div>
+    <div class="main-content">
+      <div class="page-header">
+        <h1>Historico</h1>
+        <p>Tarefas e operacoes realizadas</p>
+      </div>
+
+      <div class="filters-bar">
+        <div class="form-group">
+          <label>Data Inicio</label>
+          <input type="date" id="fDateFrom">
+        </div>
+        <div class="form-group">
+          <label>Data Fim</label>
+          <input type="date" id="fDateTo">
+        </div>
+        <div class="form-group">
+          <label>Conta</label>
+          <select id="fConta">
+            <option value="">Todas</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Tipo</label>
+          <select id="fTipo">
+            <option value="">Todos</option>
+            <option value="mapeamento">Mapeamento</option>
+            <option value="trocar">Troca</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Status</label>
+          <select id="fStatus">
+            <option value="">Todos</option>
+            <option value="pendente">Pendente</option>
+            <option value="processando">Processando</option>
+            <option value="concluida">Concluida</option>
+            <option value="erro">Erro</option>
+          </select>
+        </div>
+        <div class="form-group" id="fLiderGroup" style="display:none;">
+          <label>Lider</label>
+          <select id="fLider">
+            <option value="">Todos</option>
+          </select>
+        </div>
+        <div class="form-group" style="display:flex; align-items:flex-end;">
+          <button class="btn btn-primary" style="width:auto;" onclick="applyFilters()">Filtrar</button>
+        </div>
+      </div>
+
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>Data/Hora</th>
+              <th>Lider</th>
+              <th>Conta</th>
+              <th>Modelo</th>
+              <th>Tipo</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody id="hist-body">
+            <tr><td colspan="6" style="text-align:center; color:#8b8b9e; padding:30px;">Carregando...</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="pagination" id="pagination"></div>
+    </div>
+  </div>
+
+  <script src="/js/api.js"></script>
+  <script src="/js/auth.js"></script>
+  <script>
+    const user = checkAuth();
+    let currentPage = 1;
+    const perPage = 20;
+    let allUsers = [];
+    if (user) init();
+
+    async function init() {
+      buildSidebar('historico');
+
+      // Load contas for filter
+      try {
+        const contas = await api.listContas();
+        const sel = document.getElementById('fConta');
+        contas.forEach(c => {
+          sel.innerHTML += `<option value="${c.id}">${c.label}</option>`;
+        });
+      } catch (e) {}
+
+      // Admin: show lider filter
+      if (user.role === 'admin') {
+        document.getElementById('fLiderGroup').style.display = '';
+        try {
+          allUsers = await api.listUsers();
+          const sel = document.getElementById('fLider');
+          allUsers.filter(u => u.role === 'lider').forEach(u => {
+            sel.innerHTML += `<option value="${u.id}">${u.nome}</option>`;
+          });
+        } catch (e) {}
+      }
+
+      await loadHistory();
+    }
+
+    function applyFilters() {
+      currentPage = 1;
+      loadHistory();
+    }
+
+    async function loadHistory() {
+      const params = {
+        limit: perPage,
+        offset: (currentPage - 1) * perPage,
+      };
+      const conta = document.getElementById('fConta').value;
+      const tipo = document.getElementById('fTipo').value;
+      const status = document.getElementById('fStatus').value;
+      const lider = document.getElementById('fLider') ? document.getElementById('fLider').value : '';
+
+      if (conta) params.conta_id = conta;
+      if (tipo) params.tipo = tipo;
+      if (status) params.status = status;
+      if (lider) params.lider_id = lider;
+
+      try {
+        const tarefas = await api.listTarefas(params);
+        const tbody = document.getElementById('hist-body');
+
+        if (!tarefas.length) {
+          tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; color:#8b8b9e; padding:30px;">Nenhum resultado encontrado</td></tr>';
+          document.getElementById('pagination').innerHTML = '';
+          return;
+        }
+
+        tbody.innerHTML = '';
+        tarefas.forEach((t, i) => {
+          const date = new Date(t.created_at).toLocaleString('pt-BR');
+          const statusMap = {
+            pendente: 'badge-pending',
+            processando: 'badge-processing',
+            concluida: 'badge-done',
+            erro: 'badge-error'
+          };
+          const liderName = t.lider_id ? (allUsers.find(u => u.id === t.lider_id)?.nome || t.lider_id.substring(0, 8)) : '-';
+
+          const mainRow = document.createElement('tr');
+          mainRow.style.cursor = 'pointer';
+          mainRow.onclick = () => toggleDetail(i);
+          mainRow.innerHTML = `
+            <td>${date}</td>
+            <td>${liderName}</td>
+            <td>${t.conta_id}</td>
+            <td>${t.modelo}</td>
+            <td>${t.tipo}</td>
+            <td><span class="badge ${statusMap[t.status] || ''}">${t.status}</span></td>
+          `;
+
+          const detailRow = document.createElement('tr');
+          detailRow.className = 'expand-row';
+          detailRow.id = `detail-${i}`;
+          const details = {
+            id: t.id,
+            numero_novo: t.numero_novo || '-',
+            numero_antigo: t.numero_antigo || '-',
+            resultado: t.resultado || '-',
+            criado: t.created_at,
+            concluido: t.completed_at || '-'
+          };
+          detailRow.innerHTML = `<td colspan="6"><pre>${JSON.stringify(details, null, 2)}</pre></td>`;
+
+          tbody.appendChild(mainRow);
+          tbody.appendChild(detailRow);
+        });
+
+        // Pagination
+        const pag = document.getElementById('pagination');
+        const hasMore = tarefas.length === perPage;
+        pag.innerHTML = `
+          <button ${currentPage <= 1 ? 'disabled' : ''} onclick="prevPage()">Anterior</button>
+          <span class="page-info">Pagina ${currentPage}</span>
+          <button ${!hasMore ? 'disabled' : ''} onclick="nextPage()">Proxima</button>
+        `;
+      } catch (err) {
+        showToast('Erro ao carregar historico: ' + err.message, 'error');
+      }
+    }
+
+    function toggleDetail(i) {
+      const row = document.getElementById(`detail-${i}`);
+      if (row) row.classList.toggle('active');
+    }
+
+    function prevPage() {
+      if (currentPage > 1) { currentPage--; loadHistory(); }
+    }
+
+    function nextPage() {
+      currentPage++;
+      loadHistory();
+    }
+  </script>
+</body>
+</html>
