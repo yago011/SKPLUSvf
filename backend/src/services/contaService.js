@@ -11,8 +11,8 @@ async function getById(id) {
   return db.get('SELECT * FROM contas_skokka WHERE id = ?', [id]);
 }
 
-async function create({ id, label }) {
-  await db.run('INSERT INTO contas_skokka (id, label) VALUES (?, ?)', [id, label]);
+async function create({ id, label, lider_id }) {
+  await db.run('INSERT INTO contas_skokka (id, label, lider_id) VALUES (?, ?, ?)', [id, label, lider_id || null]);
   return getById(id);
 }
 
